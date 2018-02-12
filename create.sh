@@ -25,7 +25,7 @@ $K8S_BIN/kubectl --namespace=kube-system patch deployment tiller-deploy --type=j
 $K8S_BIN/helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 $K8S_BIN/helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
 $K8S_BIN/helm repo add monocular https://kubernetes-helm.github.io/monocular
-$K8S_BIN/helm update
+$K8S_BIN/helm repo update
 
 ####################################
 #Helm: default namespace
@@ -42,10 +42,13 @@ $K8S_BIN/helm install monocular/monocular --name monocular
 #Helm: (data science framework) dsf namespace
 
 # helm: docker registry
-$K8S_BIN/helm install stable/docker-registry --set persistence.size=1Gi,persistence.enabled=true --name registry --namespace dsf
+$K8S_BIN/helm install stable/docker-registry --set persistence.size=10Gi,persistence.enabled=true --name registry --namespace dsf
 
 # helm: concourse
-$K8S_BIN/helm install stable/concourse --name concourse --namespace dsf
+$K8S_BIN/helm install stable/concourse --set persistence.worker.size=5Gi --name concourse --namespace dsf
 
 #check https://jupyterhub.github.io/helm-chart/ for the last version
 $K8S_BIN/helm install jupyterhub/binderhub --name binder --namespace dsf --version=0.1.0-748c2f4 -f ./binderhub.minikube.yaml
+
+######
+$K8S_BIN/helm list

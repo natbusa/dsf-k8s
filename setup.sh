@@ -21,9 +21,6 @@ mv kubectl $K8S_BIN
 # Helm
 curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | sed 's/sudo //g' | HELM_INSTALL_DIR=$(pwd)/bin bash
 
-# access to the incubator charts
-helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
-helm update
 # executables
 chmod +x $K8S_BIN/*kube*
 
