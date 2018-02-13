@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+expot K8S_DSF_ROOT=
+
 export K8S_BIN=$(pwd)/bin
 export MINIKUBE_HOME=$(pwd)
 export HELM_HOME=$(pwd)/.helm
@@ -24,19 +26,10 @@ $K8S_BIN/kubectl --namespace=kube-system patch deployment tiller-deploy --type=j
 # Helm: repos
 $K8S_BIN/helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 $K8S_BIN/helm repo add jupyterhub https://jupyterhub.github.io/helm-chart/
-$K8S_BIN/helm repo add monocular https://kubernetes-helm.github.io/monocular
 $K8S_BIN/helm repo update
 
 ####################################
 #Helm: default namespace
-
-# helm: ingress
-# helm install stable/nginx-ingress
-  # Minikube/Kubeadm:
-$K8S_BIN/helm install stable/nginx-ingress --name ingress --set controller.hostNetwork=true
-
-#helm: monocular
-$K8S_BIN/helm install monocular/monocular --name monocular
 
 ####################################
 #Helm: (data science framework) dsf namespace
@@ -49,6 +42,15 @@ $K8S_BIN/helm install stable/concourse --set persistence.worker.size=5Gi --name 
 
 #check https://jupyterhub.github.io/helm-chart/ for the last version
 $K8S_BIN/helm install jupyterhub/binderhub --name binder --namespace dsf --version=0.1.0-748c2f4 -f ./binderhub.minikube.yaml
+$K8S_BIN/helm upgrade binder jupyterhub/binderhub --name binder --version=0.1.0-748c2f4 -f ./binderhub.minikube.yaml
 
 ######
 $K8S_BIN/helm list
+$K8S_BIN/kubectl get nodes,pods,svc,pv,pvc -n dsf
+$K8S_BIN/minikube dashboard&
+
+######
+#expose the services to the hostpath
+
+CONCOURSE_POD_NAME=$($K8S_BIN/kubectl get pods --namespace dsf -l "app=concourse-web" -o jsonpath="{.items[0].metadata.name}")
+$K8S_BIN/kubectl port-forward --namespace dsf $CONCOURSE_POD_NAME 8080:8080 &
